@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Falling Rose with Message</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh; /* Cambiado de height a min-height */
+            overflow-y: auto; /* Permite scroll vertical (antes era hidden) */
+            background: linear-gradient(to bottom, #26205b, #3257af);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start; /* Cambiado de space-between */
+            align-items: center;
+        }
+
+        .container {
+            position: relative;
+            width: 100%;
+            min-height: 80vh; /* Asegura altura mínima */
+            height: auto; /* Altura flexible */
+            overflow: visible; /* Permite que los pétalos salgan del contenedor */
+        }
+
+        .message-section {
+            width: 100%;
+            display: flex;
+            justify-content: center; /* Centra horizontalmente */
+            align-items: center; /* Centra verticalmente */
+            padding: 20px 0; /* Ajuste de padding */
+            box-sizing: border-box;
+        }
+        
+        .message-card {
+            background: #b83e74;
+            border-radius: 10px;
+            padding: 20px;
+            width: 90%; 
+            max-width: 600px;
+            margin: 0 auto; /* Esto centrará horizontalmente el card */
+            box-shadow: 0 0 20px #f9c5d8;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        
+        .rose-container {
+            position: absolute;
+            top: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 120px;
+            animation: fall 8s linear forwards;
+        }
+        
+        .rose {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 0 10px rgba(255, 0, 0, 0.7));
+            animation: float 3s ease-in-out infinite;
+            z-index: 2;
+        }
+        
+        .glass-dome {
+            position: absolute;
+            top: -100%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(200, 230, 255, 0.15);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 0 30px rgba(173, 216, 230, 0.5),
+                inset 0 0 20px rgba(173, 216, 230, 0.3);
+            backdrop-filter: blur(2px);
+            z-index: 3;
+            opacity: 0;
+            animation: dome-fall 2s ease-out forwards 8s;
+        }
+        
+        .petal-left, .petal-right {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle at center, #ff6b8b, #ff4757);
+            border-radius: 50% 0 50% 50%;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+            z-index: 1;
+        }
+        
+        .petal-left {
+            left: 15px;
+            top: 40px;
+            animation: left-petal-fall 3s linear infinite;
+        }
+        
+        .petal-right {
+            right: 15px;
+            top: 40px;
+            animation: right-petal-fall 3s linear infinite 1.5s;
+        }
+        
+        @keyframes dome-fall {
+            0% { 
+                top: -100%; 
+                opacity: 0;
+            }
+            20% {
+                opacity: 0;
+            }
+            100% { 
+                top: -65%;
+                opacity: 0.4;
+            }
+        }
+        
+        @keyframes left-petal-fall {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            70% { opacity: 0.8; }
+            100% { transform: translate(-20px, 80px) rotate(-180deg); opacity: 0; }
+        }
+        
+        @keyframes right-petal-fall {
+            0% { transform: translate(0, 0) rotate(0deg); opacity: 1; }
+            70% { opacity: 0.8; }
+            100% { transform: translate(20px, 80px) rotate(180deg); opacity: 0; }
+        }
+        
+        .pedestal {
+            position: absolute;
+            bottom: 10%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 120px;
+            background: linear-gradient(to bottom, #d4af37, #a67c00);
+            border-radius: 5px;
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.7);
+            z-index: 4;
+        }
+        
+        .pedestal::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            height: 20px;
+            background: linear-gradient(to bottom, #f9d423, #d4af37);
+            border-radius: 50%;
+        }
+        
+        .petal {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: radial-gradient(circle at center, #ff6b8b, #ff4757);
+            border-radius: 50% 0 50% 50%;
+            opacity: 0.8;
+            filter: drop-shadow(0 0 5px rgba(255, 0, 0, 0.5));
+            animation: fall-petal linear infinite;
+            z-index: 0;
+        }
+        
+        @keyframes fall {
+            0% {
+                top: 20%;
+                transform: translateX(-50%) rotate(0deg);
+            }
+            100% {
+                top: 53%;
+                transform: translateX(-50%) rotate(360deg);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+        
+        @keyframes fall-petal {
+            to {
+                transform: translateY(calc(165vh)) rotate(360deg); /* 100vh + altura de la carta */
+            }
+        }
+        
+        .glow {
+            position: absolute;
+            bottom: 9%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 100px;
+            height: 50px;
+            background: radial-gradient(ellipse at center, rgba(255, 0, 0, 0.4) 0%, rgba(255, 0, 0, 0) 70%);
+            border-radius: 50%;
+            opacity: 0;
+            animation: glow 10s linear forwards;
+            z-index: 5;
+        }
+        
+        @keyframes glow {
+            70% {
+                opacity: 0;
+            }
+            100% {
+                opacity: 0.7;
+            }
+        }
+
+    /* Carrusel: Configuración del contenedor */
+.image-slider {
+    position: relative;
+    width: 100%;
+    height: 500px;
+    overflow: hidden;
+    border-radius: 10px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent; /* Sin fondo */
+    isolation: isolate; /* Asegura que el fondo no se mezcle con el desenfoque */
+}
+
+.blur-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(20px); /* Desenfoque aplicado */
+    z-index: -1; /* Detrás de las imágenes principales */
+    pointer-events: none; /* No interferir con interacciones */
+    isolation: isolate; /* Asegura que el desenfoque no mezcle colores */
+    transition: background-image 0.5s ease-in-out, filter 0.5s ease-in-out;
+}
+
+
+/* Imágenes dentro del carrusel */
+.slider-images {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease-in-out; /* Suave desplazamiento al cambiar */
+}
+
+/* Imágenes individuales */
+.slider-images img {
+    flex: 0 0 100%; /* Cada imagen ocupa el 100% del ancho del contenedor */
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain; /* Ajusta las imágenes manteniendo proporciones */
+    display: block;
+}
+
+
+
+@media (max-width: 768px) {
+    .image-slider {
+        width: 100%; /* Ocupa todo el ancho disponible */
+        height: auto; /* Ajusta la altura automáticamente */
+    }
+    .image-slider img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain; /* Mantiene proporciones sin recortar */
+    }
+}
+
+
+
+/* Contenedor de los indicadores */
+.indicators {
+    display: flex;
+    justify-content: center; /* Centra los indicadores */
+    margin-top: 10px; /* Espacio entre el carrusel y los indicadores */
+    position: absolute; /* Posición relativa al contenedor del carrusel */
+    bottom: 10px; /* Ubicación en la parte inferior del carrusel */
+    width: 100%; /* Ocupa todo el ancho del carrusel */
+    z-index: 2; /* Asegúrate de que estén encima de las imágenes */
+}
+
+/* Indicadores individuales */
+.indicators .indicator {
+    width: 10px; /* Tamaño del indicador */
+    height: 10px;
+    margin: 0 5px; /* Espaciado entre indicadores */
+    background: #cccccc; /* Color base del indicador */
+    border-radius: 50%; /* Forma circular */
+    cursor: pointer;
+    transition: background 0.3s ease;
+}
+
+/* Indicador activo */
+.indicators .indicator.active {
+    background: #c8abd5; /* Color del indicador activo */
+}
+
+/* Botones de navegación */
+.prev-btn, .next-btn {
+    position: absolute;
+    top: 50%; /* Centra verticalmente */
+    transform: translateY(-50%); /* Ajusta el desplazamiento */
+    background: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+    color: #c8abd5;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 10; /* Asegúrate de que estén encima de las imágenes */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Posición específica para cada botón */
+.prev-btn {
+    left: 20px; /* Espaciado desde el lado izquierdo */
+}
+.next-btn {
+    right: 20px; /* Espaciado desde el lado derecho */
+}
+
+/* Efecto hover */
+.prev-btn:hover, .next-btn:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.audio-player {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    padding: 10px 15px;
+    border-radius: 15px;
+    z-index: 1000;
+    width: 240px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+.controls {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.controls button {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+.controls button:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+#audio-volume-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+#audio-volume-container input[type="range"] {
+    flex-grow: 1;
+}
+
+#ap_currentSong {
+    color: white;
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 4px;
+    max-width: 200px; /* límite del ancho */
+    overflow: hidden;
+    white-space: nowrap;
+    position: relative;
+}
+/* Animación para desplazamiento */
+#ap_currentSong.marquee span {
+    display: inline-block;
+    padding-left: 100%;
+    animation: scrollText 8s linear infinite;
+}
+@keyframes scrollText {
+    0%   { transform: translateX(0); }
+    100% { transform: translateX(-100%); }
+}
+
+.heart {
+    position: absolute;
+    pointer-events: none;
+    z-index: 1000;
+    animation: floatHeart 2s ease-out forwards;
+}
+
+@keyframes floatHeart {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-100px) scale(0.5);
+        opacity: 0;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="rose-container">
+            <!-- Rose image -->
+            <img src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text x='50' y='60' font-size='80' text-anchor='middle'>🌹</text></svg>" alt="Rose" class="rose">
+            
+            <!-- Left petal -->
+            <div class="petal-left"></div>
+            
+            <!-- Right petal -->
+            <div class="petal-right"></div>
+            
+            <!-- Glass dome that appears at the end -->
+            <div class="glass-dome"></div>
+        </div>
+        <div class="pedestal"></div>
+        <div class="glow"></div>
+    </div>
+
+    <div class="message-section">
+        <div class="message-card">
+            <!-- Your message content goes here -->
+            <h2 style="color: #090c15; text-align: center;">Hola nene!!</h2>
+            <p style="color: #090c15;">Te iba a escribir una carta, pero con mi letra apenas la ibas a entender xd, yo decidi hacer esto porque todavia no entiendo tu desicion y mas que eso no la quiero aceptar, tambien
+                que te quiero pedir perdon por durar tanto para pedirte ser tu novio, no hablar mucho contigo cuando te fuiste de viaje, senti miedo de que ya no te interesaba y por eso como que deje que fluyera, debi insistir un poco mas.
+                 pero aqui estamos xd... bueno, no se como expresarte lo mucho que quiero estar contigo, y esto es algo que me nacio, no soy bueno con las palabras, pero he disfrutado cada minuto estando a tu lado, de verdad te agradezco
+                 las clases de salsa ame y amo aprender contigo, en el estaba acostumbrado a no hablar y a enfocarme, pero solo cuando vi que te podia perder
+                 es que te empece a hablar de verdad, un poco tarde :c, em yo no se porque momento estas pasando ahora, pero creeme que no me tienes que alejar para pasarlo, 
+                 aunque si no es eso y de verdad no quieres seguir con esto, este va a ser mi ultimo intento, gracias por dejarme ser tu primer casi algo, ojala 
+                 hubiera sido tu novio y quien sabe si mas, bueno...te quiero.</p>
+            <!-- Carrusel de imágenes -->
+        <div class="image-slider">
+            <div class="blur-background"></div> <!-- Nueva capa para el desenfoque -->
+                <div class="slider-images">
+                    <img src="images/image1.jpg" alt="Imagen 1">
+                    <img src="images/image2.jpg" alt="Imagen 2">
+                    <img src="images/image3.jpg" alt="Imagen 3">
+                    <img src="images/image4.jpg" alt="Imagen 4">
+                    <img src="images/image5.jpg" alt="Imagen 5">
+                    <img src="images/image6.jpg" alt="Imagen 6">
+                    <img src="images/image7.jpg" alt="Imagen 7">
+                    <img src="images/image8.jpg" alt="Imagen 8">
+                    <img src="images/image9.jpg" alt="Imagen 9">
+                    <img src="images/image10.jpg" alt="Imagen 10">
+                    <img src="images/image12.jpg" alt="Imagen 12">
+                    <img src="images/image13.jpg" alt="Imagen 13">
+                    <img src="images/image14.jpg" alt="Imagen 14">
+                    <img src="images/image15.jpg" alt="Imagen 15">
+                    <img src="images/image16.jpg" alt="Imagen 16">
+                    <img src="images/image17.jpg" alt="Imagen 17">
+                    <img src="images/image18.jpg" alt="Imagen 18">
+                    <img src="images/image19.jpg" alt="Imagen 19">
+                    <img src="images/image20.jpg" alt="Imagen 20">
+                    <img src="images/image21.jpg" alt="Imagen 21">
+
+                </div>
+                    <button class="prev-btn">◀</button>
+                    <button class="next-btn">▶</button>
+                    <div class="indicators">
+                </div>
+        </div>
+        </div>
+    </div>
+
+    <!-- Reproductor minimalista -->
+<div class="audio-player">
+    <span id="ap_currentSong"></span>
+    <div class="controls">
+        <button id="ap_prevBtn">⏮</button>
+        <button id="ap_playBtn">▶</button>
+        <button id="ap_nextBtn">⏭</button>
+    </div>
+    <div id="audio-volume-container">
+        <input type="range" id="ap_volume" min="0" max="1" step="0.1" value="0.7">
+    </div>
+    <audio id="ap_player" loop></audio>
+</div>
+
+         
+
+    <script>
+        // Create falling petals
+        function createPetals() {
+            const container = document.querySelector('.container');
+            const petalCount = 15;
+            
+            for (let i = 0; i < petalCount; i++) {
+                const petal = document.createElement('div');
+                petal.classList.add('petal');
+                
+                // Random position and animation duration
+                const left = Math.random() * 100;
+                const animationDuration = 3 + Math.random() * 4;
+                const delay = Math.random() * 5;
+                const size = 10 + Math.random() * 10;
+                
+                petal.style.left = `${left}%`;
+                petal.style.top = `-${size}px`; // Comienzan arriba del todo
+                petal.style.width = `${size}px`;
+                petal.style.height = `${size}px`;
+                petal.style.animationDuration = `${animationDuration}s`;
+                petal.style.animationDelay = `${delay}s`;
+                petal.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                // Random rotation
+                petal.style.transform = `rotate(${Math.random() * 360}deg)`;
+                
+                container.appendChild(petal);
+            }
+        }
+        
+        // Initialize the animation
+        window.onload = function() {
+            createPetals();
+        };
+
+
+                                            //seccion `carrusel
+const sliderImages = document.querySelector('.slider-images'); // Contenedor de las imágenes
+const images = document.querySelectorAll('.slider-images img'); // Todas las imágenes
+const prevBtn = document.querySelector('.prev-btn'); // Botón "Anterior"
+const nextBtn = document.querySelector('.next-btn'); // Botón "Siguiente"
+const indicatorsContainer = document.querySelector('.indicators'); // Contenedor de los indicadores
+
+let currentIndex = 0; // Índice de la imagen actual
+const totalImages = images.length; // Número total de imágenes
+
+// Crear los indicadores dinámicamente
+images.forEach((_, index) => {
+    const indicator = document.createElement('div');
+    indicator.classList.add('indicator');
+    if (index === 0) indicator.classList.add('active'); // Activo por defecto
+    indicatorsContainer.appendChild(indicator);
+
+    // Evento de clic para ir a la imagen específica
+    indicator.addEventListener('click', () => {
+        currentIndex = index; // Actualiza el índice al del indicador
+        updateSlider();
+    });
+});
+
+// Función para actualizar el carrusel
+// Función para actualizar el fondo desenfocado de .blur-background
+function updateBlurBackground() {
+    const blurBackground = document.querySelector('.blur-background'); // Selecciona la capa de desenfoque
+    const currentImage = document.querySelectorAll('.slider-images img')[currentIndex].src; // Obtén la URL de la imagen activa
+
+    // Establece la imagen activa como fondo de la capa desenfocada
+    blurBackground.style.backgroundImage = `url(${currentImage})`;
+    blurBackground.style.filter = 'blur(20px)'; // Aplica el desenfoque
+}
+
+// Llama a la función cuando se actualice el carrusel
+function updateSlider() {
+    const offset = -currentIndex * 100; // Calcula el desplazamiento
+    sliderImages.style.transform = `translateX(${offset}%)`; // Mueve las imágenes del carrusel
+
+    // Actualiza los indicadores
+    document.querySelectorAll('.indicator').forEach((indicator, index) => {
+        indicator.classList.toggle('active', index === currentIndex);
+    });
+
+    // Actualiza el fondo desenfocado dinámico
+    updateBlurBackground();
+}
+
+// Configuración inicial del fondo desenfocado
+window.addEventListener('load', () => {
+    updateBlurBackground();
+    updateSlider();
+});
+
+// Botón "Anterior"
+prevBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex === 0) ? totalImages - 1 : currentIndex - 1; // Cicla al último si está en el primero
+    updateSlider();
+});
+
+// Botón "Siguiente"
+nextBtn.addEventListener('click', () => {
+    currentIndex = (currentIndex === totalImages - 1) ? 0 : currentIndex + 1; // Cicla al primero si está en el último
+    updateSlider();
+});
+
+// Configuración inicial del slider
+updateSlider();
+
+// Desplazamiento automático
+setInterval(() => {
+    currentIndex = (currentIndex === totalImages - 1) ? 0 : currentIndex + 1;
+    updateSlider();
+}, 3000); // Cambia cada 3 segundos
+
+
+// Limpia los indicadores existentes antes de generarlos
+indicatorsContainer.innerHTML = '';
+
+images.forEach((_, index) => {
+    const indicator = document.createElement('div');
+    indicator.classList.add('indicator');
+    if (index === 0) indicator.classList.add('active'); // Activo por defecto
+    indicatorsContainer.appendChild(indicator);
+
+    indicator.addEventListener('click', () => {
+        currentIndex = index; // Cambia la imagen al hacer clic en el indicador
+        updateSlider();
+    });
+});
+
+let startX = 0;
+let isDragging = false;
+
+// Eventos de touch/mouse
+sliderImages.addEventListener('mousedown', (e) => {
+    startX = e.clientX;
+    isDragging = true;
+});
+
+sliderImages.addEventListener('mouseup', (e) => {
+    isDragging = false;
+    const endX = e.clientX;
+    if (startX - endX > 50) {
+        currentIndex = (currentIndex === totalImages - 1) ? 0 : currentIndex + 1;
+    } else if (endX - startX > 50) {
+        currentIndex = (currentIndex === 0) ? totalImages - 1 : currentIndex - 1;
+    }
+    updateSlider();
+});
+
+sliderImages.addEventListener('mouseleave', () => {
+    isDragging = false;
+});
+
+sliderImages.addEventListener('touchstart', (e) => {
+    startX = e.touches[0].clientX;
+    isDragging = true;
+});
+
+sliderImages.addEventListener('touchend', (e) => {
+    const endX = e.changedTouches[0].clientX;
+    if (startX - endX > 50) {
+        currentIndex = (currentIndex === totalImages - 1) ? 0 : currentIndex + 1;
+    } else if (endX - startX > 50) {
+        currentIndex = (currentIndex === 0) ? totalImages - 1 : currentIndex - 1;
+    }
+    updateSlider();
+    isDragging = false;
+});
+
+// Lista de canciones (usa rutas reales de tu carpeta 'audio')
+const ap_songs = [
+    { name: "dame play xd", path: "audio/Que Me Des Tu Carino - Juan Luis Guerra.mp3" },
+    { name: "yo ahora mismo", path: "audio/Maroon 5 - Misery (Official Music Video).mp3" },
+    { name: "ya besame we :c", path: "audio/Doja Cat - Kiss Me More (Official Video) ft. SZA.mp3" },
+    { name: "oli", path: "audio/Anderson .Paak - Lite Weight (feat. The Free Nationals United Fellowship Choir).mp3" },
+    { name: "toca conejito malo", path: "audio/Bad Bunny, Chuwi -  WELTiTA (Video Lyrics).mp3" },
+    { name: "estilo mi niña", path: "audio/Bruno Mars, Anderson .Paak, Silk Sonic - Leave the Door Open [Official Video].mp3" },
+    { name: "me gusta el ritmo de esta", path: "audio/Måneskin - OFF MY FACE.mp3" },
+    { name: "fuck...me enamoraste", path: "audio/Enrique Iglesias, Juan Luis Guerra - Cuando Me Enamoro (Official Music Video).mp3" },
+    { name: "como llego esto aqui?", path: "audio/Estelle - American Boy [Feat. Kanye West] [Video].mp3" },
+    { name: "diosito escushame porfavorrrr", path: "audio/Juanes - A Dios Le Pido (Official Music Video).mp3" },
+    { name: "que deseo te tengo xd", path: "audio/Juanes - Me Enamora (Official Music Video).mp3" },
+    { name: "esta cancion me identifica", path: "audio/Julieta Venegas - Eres para mí  Letra.mp3" },
+    { name: "soo, u need to understand, a like u", path: "audio/KAMAUU - MANGO (feat. Adi Oasis) [Official Music Video].mp3" },
+    { name: "tu marido belcast jsjssjsj", path: "audio/Kenia OS - Malas Decisiones (Video Oficial).mp3" },
+    { name: "lo que pienso cuando me preguntan como te ves", path: "audio/Los Choclok - Bonita (Video con Letra)..mp3" },
+    { name: "te extraño", path: "audio/Manuel Medrano - Si Pudiera (Sesiones en Vivo EQ Studio).mp3" },
+    { name: "tu haces como michael aveces, me parece tierno", path: "audio/Michael Jackson -Remember The Time (Sub en español).mp3" },
+    { name: "en rap por si no entiendes", path: "audio/Micro TDH - Besame Sin Sentir (Official Video).mp3" },
+    { name: "se que no te gustan mucho, pero esta pegajosa", path: "audio/Myke Towers - TENGO CELOS (Official Music Video).mp3" },
+    { name: "esta me gusta", path: "audio/Post Malone - Circles (Official Music Video).mp3" },
+    { name: "aveces no encuentro que decirte, parezco robot diciendote lo mismo, pero las palabras se quedan cortas", path: "audio/Rauw Alejandro - Carita Linda (Official Video).mp3" },
+    { name: "yo estoy asi", path: "audio/Rauw Alejandro - Enchule (Video Oficial).mp3" },
+    { name: "i need to see u", path: "audio/Tyler, The Creator & Kali Uchis - See You Again (Sub. Español  Lyrics).mp3" },
+    { name: "descripcion de lo que quiero hacerte xd", path: "audio/Un Beso De Desayuno - Calle 13 (Manuel Medrano Cover) Sesiones Inshaka.mp3" },
+    { name: ":c", path: "audio/Vicente García - La Esquinita (Cover Audio).mp3" },
+    { name: "deberiamos volver", path: "audio/Vicente García - Lo Que Más Extrañas (Audio Oficial) - copia.mp3" },
+    { name: "eso siento aveces", path: "audio/Vicente García - Un Conuco y Una Flor (Audio Oficial).mp3" },
+    { name: "de verdad siento que tu y yo podriamos funcionar", path: "audio/Daft Punk - Something About Us (Official Audio).mp3" },
+    { name: "llegaste hasta aqui, porque piensas tanto, si fuera yo me meteria conmigo de one", path: "audio/Jack Harlow - Hello Miss Johnson [Official Music Video].mp3" },
+    { name: "te quiero mushooooooooooo", path: "audio/J Balvin, Bad Bunny - LA CANCIÓN (Audio).mp3" },
+    { name: "u need to love me and think later honey", path: "audio/#1 Zero.mp3" },
+    { name: "no se cuantas canciones van, pero son pocas para comunicar lo que siento por ti", path: "audio/Calle 13 - La Vuelta al Mundo.mp3" },
+
+];
+
+const ap_player = document.getElementById('ap_player');
+const ap_playBtn = document.getElementById('ap_playBtn');
+const ap_prevBtn = document.getElementById('ap_prevBtn');
+const ap_nextBtn = document.getElementById('ap_nextBtn');
+const ap_volume = document.getElementById('ap_volume');
+const ap_currentSong = document.getElementById('ap_currentSong');
+
+let ap_currentTrack = 0;
+
+// Cargar canción
+function ap_loadSong(index) {
+    ap_player.src = ap_songs[index].path;
+    ap_currentSong.textContent = ap_songs[index].name;
+    ap_player.play();
+    ap_playBtn.textContent = "⏸";
+}
+
+// Controles
+ap_playBtn.addEventListener('click', () => {
+    if (ap_player.paused) {
+        ap_player.play();
+        ap_playBtn.textContent = "⏸";
+    } else {
+        ap_player.pause();
+        ap_playBtn.textContent = "▶";
+    }
+});
+ap_prevBtn.addEventListener('click', () => {
+    ap_currentTrack = (ap_currentTrack - 1 + ap_songs.length) % ap_songs.length;
+    ap_loadSong(ap_currentTrack);
+});
+ap_nextBtn.addEventListener('click', () => {
+    ap_currentTrack = (ap_currentTrack + 1) % ap_songs.length;
+    ap_loadSong(ap_currentTrack);
+});
+ap_volume.addEventListener('input', () => {
+    ap_player.volume = ap_volume.value;
+});
+
+// Iniciar reproductor cuando el DOM esté listo
+document.addEventListener("DOMContentLoaded", () => {
+    ap_loadSong(ap_currentTrack);
+    ap_player.volume = 0.7;
+});
+
+function ap_loadSong(index) {
+    ap_player.src = ap_songs[index].path;
+    ap_currentSong.innerHTML = `<span>${ap_songs[index].name}</span>`;
+
+    // Si el texto es más largo que el ancho del contenedor, activar marquee
+    setTimeout(() => {
+        if (ap_currentSong.scrollWidth > ap_currentSong.clientWidth) {
+            ap_currentSong.classList.add('marquee');
+        } else {
+            ap_currentSong.classList.remove('marquee');
+        }
+    }, 100);
+
+    ap_player.play();
+    ap_playBtn.textContent = "⏸";
+}
+
+// Crear corazones al hacer clic
+document.addEventListener('click', function(e) {
+    createHeart(e.clientX, e.clientY);
+});
+
+function createHeart(x, y) {
+    const heart = document.createElement('div');
+    heart.className = 'heart'; // Usamos la clase CSS definida
+    heart.innerHTML = '❤️';
+    heart.style.left = `${x - 15}px`;
+    heart.style.top = `${y - 15}px`;
+    heart.style.fontSize = `${Math.random() * 20 + 10}px`;
+    heart.style.color = `hsl(${Math.random() * 360}, 100%, 70%)`; // Colores aleatorios
+    
+    document.body.appendChild(heart);
+    
+    // Eliminar el corazón después de la animación
+    setTimeout(() => {
+        heart.remove();
+    }, 2000);
+}
+
+    </script>
+
+
+</body>
+</html>
